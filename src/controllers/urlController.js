@@ -1,25 +1,34 @@
 const urlModel = require('../models/urlMode');
 const { isWebUri } = require('../validators/validator');
 const shortId = require('shortid')
-const redis = require('redis');
+const { createClient } = require('redis');
 const { promisify } = require('util');
 
 //
-// redis client to store data in chache and to retrive data from cache
-const redisClient = redis.createClient(
-    18265,                                                    // port-number
-    "redis-18265.c301.ap-south-1-1.ec2.cloud.redislabs.com",  //host name and url of redis
-    { no_ready_check: true }
-);
-redisClient.auth("ysDNRyfBElfft4UKeapXaAF1fAJmTujy", function (err) {
-    if (err) throw err; // it authenticate the client
+const client = createClient({
+    password: 'TCgFRBVdKNCOp76ZutXVAsTlDwa5s4HQ',
+    socket: {
+        host: 'redis-14670.c301.ap-south-1-1.ec2.cloud.redislabs.com',
+        port: 14670
+    }
 });
+
+// redis client to store data in chache and to retrive data from cache
+// const client = redis.createClient(
+//     14670,                                                    // port-number
+//     "redis-14670.c301.ap-south-1-1.ec2.cloud.redislabs.com",  //host name and url of redis
+//     { no_ready_check: true }
+// );
+
+// client.auth("ysDNRyfBElfft4UKeapXaAF1fAJmTujy", function (err) {
+//     if (err) throw err; // it authenticate the client
+// });
 //on is the listener when we event is listen then it print in console
-redisClient.on("connect", async function () {
+client.on("connect", async function () {
     console.log("Successfully conected to redis");
 });
-const SET_ASYNC = promisify(redisClient.SETEX).bind(redisClient);
-const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
+const SET_ASYNC = promisify(client.SETEX).bind(client);
+const GET_ASYNC = promisify(client.GET).bind(client);
 
 // 
 // route handler to create sort url
